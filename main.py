@@ -6,29 +6,15 @@ import os
 import random
 import string
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from flask import Flask
-
-# --- 🌐 إنشاء سيرفر Flask في الخلفية لإبقاء البوت حياً على Render ---
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "البوت شغال تمام التمام ومتصل بالسيرفر بنجاح! 🚀"
-
-def run_web_server():
-    # السيرفر بيشتغل على بورت 8080 بشكل افتراضي متوافق مع ريندر
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
 
 # --- ⚠️ إعدادات البوت الأساسية ---
 BOT_TOKEN = "8891688659:AAEK2qNBjjQL_UtyXk07-Xe-cKSK8LD4meU"      # توكن البوت الخاص بك من BotFather
 ADMIN_ID = 8672817508                # الـ ID بتاعك كمدير للبوت 👑
 
-# 🔑 بيانات الحسابات الثلاثة لموقع Durian 
+# 🔑 بيانات الحسابين لموقع Durian (تم تعديلها لتصبح حسابين فقط)
 DURIAN_ACCOUNTS = [
     ["Abdelhadi2005", "OXgwaDJnNXIraDByNEVxRXFsNWVEUT09"],
-    ["3bdelhadisayed", "N3BIVTV2OWxheFFYenpFL0NrbW45Zz09"],
-    ["Abdelhadisayed", "YXRjMHFVSlVtR09RSytaeUNDMTZrQT09"]
+    ["3bdelhadisayed", "N3BIVTV2OWxheFFYenpFL0NrbW45Zz09"]
 ]
 # -----------------------------------------------------------------
 
@@ -154,7 +140,7 @@ def save_data(mode):
             with open(SETTINGS_FILE, "w") as f:
                 for k, v in SETTINGS.items(): f.write(f"{k}={v}\n")
         elif mode == "promos":
-            with open(PROMOS_FILE, "w") as f:
+            with open(PROMO_CODES, "w") as f:
                 for code, val in PROMO_CODES.items(): f.write(f"{code}:{val}\n")
         elif mode == "banned":
             with open(BANNED_FILE, "w") as f:
@@ -312,7 +298,7 @@ def send_welcome(message):
         )
         bot.send_message(message.chat.id, admin_text, reply_markup=get_admin_dashboard_keyboard(), parse_mode="HTML")
     else:
-        welcome_text = f"• <u><b>🕸️ 𝕊ℙ𝓘𝓓𝓔𝓡 𝕊𝕄𝕊 🕷️ - Auto Hunting Bot</b></u> •\n\n💰 <b>رصيدك الحالي:</b> {get_user_balance(user_id):.2f} $\n\n🆔 الـ ID الخاص بك: <code>{user_id}</code>"
+        welcome_text = f"• <u><b>🕸️ 𝕾𝕻𝕴𝕯𝕰𝕽 𝕾𝕸𝕾 🕷️ - Auto Hunting Bot</b></u> •\n\n💰 <b>رصيدك الحالي:</b> {get_user_balance(user_id):.2f} $\n\n🆔 الـ ID الخاص بك: <code>{user_id}</code>"
         bot.send_message(message.chat.id, welcome_text, reply_markup=get_main_keyboard(), parse_mode="HTML")
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -323,7 +309,7 @@ def handle_callbacks(call):
     if call.data == "check_join_btn":
         if check_user_joined_channel(user_id):
             bot.answer_callback_query(call.id, "✅ تم تفعيل حسابك بنجاح!", show_alert=True)
-            welcome_text = f"• <u><b>🕸️ 𝕊ℙ𝓘𝓓𝓔𝓡 𝕊𝕄𝕊 🕷️ - Auto Hunting Bot</b></u> •\n\n💰 <b>رصيدك الحالي:</b> {get_user_balance(user_id):.2f} $\n\n🆔 الـ ID الخاص بك: <code>{user_id}</code>"
+            welcome_text = f"• <u><b>🕸️ 𝕾𝕻𝕴𝕯𝕰𝕽 𝕾𝕸𝕾 🕷️ - Auto Hunting Bot</b></u> •\n\n💰 <b>رصيدك الحالي:</b> {get_user_balance(user_id):.2f} $\n\n🆔 الـ ID الخاص بك: <code>{user_id}</code>"
             bot.edit_message_text(chat_id=user_id, message_id=call.message.id, text=welcome_text, reply_markup=get_main_keyboard(), parse_mode="HTML")
         else:
             bot.answer_callback_query(call.id, "❌ لسه مشركتش يا غالي! اشترك الحين.", show_alert=True)
@@ -486,7 +472,7 @@ def handle_callbacks(call):
 
     elif call.data == "back_to_main":
         bot.answer_callback_query(call.id)
-        welcome_text = f"• <u><b>🕸️ 𝕊ℙ𝓘𝓓𝓔𝓡 𝕊𝕄𝕊 🕷️ - Auto Hunting Bot</b></u> •\n\n💰 <b>رصيدك الحالي:</b> {get_user_balance(user_id):.2f} $\n\n🆔 الـ ID الخاص بك: <code>{user_id}</code>"
+        welcome_text = f"• <u><b>🕸️ 𝕾𝕻𝕴𝕯𝕰𝕽 𝕾𝕸𝕾 🕷️ - Auto Hunting Bot</b></u> •\n\n💰 <b>رصيدك الحالي:</b> {get_user_balance(user_id):.2f} $\n\n🆔 الـ ID الخاص بك: <code>{user_id}</code>"
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.id, text=welcome_text, reply_markup=get_main_keyboard(), parse_mode="HTML")
         return
     
@@ -528,7 +514,6 @@ def handle_callbacks(call):
         else:
             bot.answer_callback_query(call.id, "❌ الرقم تم بيعه أو انتهت صلاحيته!", show_alert=True)
 
-# --- ⚙️ معالجة الرسائل النصية ---
 @bot.message_handler(func=lambda msg: msg.from_user.id in admin_state)
 def handle_states(message):
     user_id = message.from_user.id
@@ -788,12 +773,8 @@ def process_admin_broadcast(message):
     bot.send_message(ADMIN_ID, f"✅ تم الإرسال لـ {count} زبون بنجاح.")
 
 def run_bot_safe():
-    print("🕸️🕷️ تم تشغيل سيرفر الويب والبوت بنجاح... 🚀✨📌")
-    # تشغيل سيرفر الويب في ثريد منفصل
-    threading.Thread(target=run_web_server, daemon=True).start()
-    # تشغيل الصائد التلقائي
+    print("🕸️🕷️ تم تشغيل البوت بالحسابين والتوكن المحدثين بنجاح... 🚀")
     threading.Thread(target=global_auto_buyer, daemon=True).start()
-    
     while True:
         try: bot.infinity_polling(timeout=20, long_polling_timeout=10)
         except: time.sleep(5)
