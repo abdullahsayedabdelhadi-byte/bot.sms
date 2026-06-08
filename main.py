@@ -6,16 +6,29 @@ import os
 import random
 import string
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from flask import Flask
+
+# --- 🌐 إنشاء سيرفر Flask في الخلفية لإبقاء البوت حياً على Render ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "البوت شغال تمام التمام ومتصل بالسيرفر بنجاح! 🚀"
+
+def run_web_server():
+    # السيرفر بيشتغل على بورت 8080 بشكل افتراضي متوافق مع ريندر
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
 
 # --- ⚠️ إعدادات البوت الأساسية ---
-BOT_TOKEN = "8079896033:AAGC8LigHHqLLK1uc8mJDVyRAw8_7eosLzk"      # توكن البوت الخاص بك من BotFather
-ADMIN_ID = 7087179945                # الـ ID بتاعك كمدير للبوت 👑
+BOT_TOKEN = "8891688659:AAEK2qNBjjQL_UtyXk07-Xe-cKSK8LD4meU"      # توكن البوت الخاص بك من BotFather
+ADMIN_ID = 8672817508                # الـ ID بتاعك كمدير للبوت 👑
 
 # 🔑 بيانات الحسابات الثلاثة لموقع Durian 
 DURIAN_ACCOUNTS = [
-    ["Abdelhadi2005", "RStqT2cvR2dMMTNPVVFaMU9DYXdQdz09"],
-
-    ["Abdelhadi2005", "RStqT2cvR2dMMTNPVVFaMU9DYXdQdz09"]
+    ["Abdelhadi2005", "OXgwaDJnNXIraDByNEVxRXFsNWVEUT09"],
+    ["3bdelhadisayed", "N3BIVTV2OWxheFFYenpFL0NrbW45Zz09"],
+    ["Abdelhadisayed", "YXRjMHFVSlVtR09RSytaeUNDMTZrQT09"]
 ]
 # -----------------------------------------------------------------
 
@@ -481,7 +494,6 @@ def handle_callbacks(call):
         current_time = time.time()
         last_purchase_time = USER_PURCHASE_COOLDOWN.get(user_id, 0)
         
-        # ⏱️ الحظر الفوري للإسبام: الزبون مجبر ينتظر 5 ثوانٍ بين محاولات حجز الأرقام
         if current_time - last_purchase_time < 5:
             bot.answer_callback_query(call.id, "⚠️ يرجى الانتظار 5 ثوانٍ بين محاولات الشراء.", show_alert=True)
             return
@@ -494,7 +506,6 @@ def handle_callbacks(call):
             target_info = active_hunted_numbers[phone]
             price = float(target_info['price'])
             
-            # 💸 التعديل الأمني: نتحقق من رصيده أولاً، لكن لا نخصم شيئاً الحين!
             if get_user_balance(user_id) >= price:
                 USER_PURCHASE_COOLDOWN[user_id] = current_time
                 del active_hunted_numbers[phone]
@@ -517,7 +528,7 @@ def handle_callbacks(call):
         else:
             bot.answer_callback_query(call.id, "❌ الرقم تم بيعه أو انتهت صلاحيته!", show_alert=True)
 
-# --- ⚙️ معالجة الرسائل النصية المصلحة من أخطاء الـ Syntax بالملي الحين جوة السيستم ---
+# --- ⚙️ معالجة الرسائل النصية ---
 @bot.message_handler(func=lambda msg: msg.from_user.id in admin_state)
 def handle_states(message):
     user_id = message.from_user.id
@@ -667,7 +678,6 @@ def global_auto_buyer():
                 time.sleep(0.5)
             time.sleep(0.5)
 
-# ⏱️ ⚡ دالة الفحص الذكية المعدلة: الخصم التلقائي والفعلي للرصيد يحصل بعد وصول كود الـ SMS بنجاح فقط! الحين مقفلة 🔒📌
 def wait_for_sms(user_id, phone_number, price, acc_index, status_msg_id, c_name, flag):
     acc = DURIAN_ACCOUNTS[acc_index]
     sms_url = f"https://api.durianrcs.com/out/ext_api/getMsg?name={acc[0]}&ApiKey={acc[1]}&pn={phone_number}&pid={str(SETTINGS['pid'])}&serial=2"
@@ -705,7 +715,6 @@ def wait_for_sms(user_id, phone_number, price, acc_index, status_msg_id, c_name,
             if res.get("code") == 200:
                 sms_code = res.get("data")
                 
-                # 💸 لحظة استلام الكود بنجاح: الحين يحصل الخصم الحقيقي والأكيد من محفظة العميل! 🔒💰
                 if user_id not in USER_BALANCES: USER_BALANCES[user_id] = 0.00
                 USER_BALANCES[user_id] = max(0.00, USER_BALANCES[user_id] - price)
                 save_data("balances")
@@ -729,7 +738,6 @@ def wait_for_sms(user_id, phone_number, price, acc_index, status_msg_id, c_name,
                 return
         except: pass
     
-    # ❌ لو موصلش الكود وانتهى الوقت: الرصيد أصلاً مخصمنهوش من الأول، فبنلغي الرقم أوتوماتيك مجاناً تماماً! 😎🍿
     release_bad_number(phone_number, acc_index)
     SYSTEM_STATS["failed_orders"] += 1
     
@@ -780,8 +788,12 @@ def process_admin_broadcast(message):
     bot.send_message(ADMIN_ID, f"✅ تم الإرسال لـ {count} زبون بنجاح.")
 
 def run_bot_safe():
-    print("🕸️🕷️ تم قفل منطق الخصم الآمن والـ Cooldown المظبوط على النسخة الـ 700 سطر بنجاح... 🚀✨📌")
+    print("🕸️🕷️ تم تشغيل سيرفر الويب والبوت بنجاح... 🚀✨📌")
+    # تشغيل سيرفر الويب في ثريد منفصل
+    threading.Thread(target=run_web_server, daemon=True).start()
+    # تشغيل الصائد التلقائي
     threading.Thread(target=global_auto_buyer, daemon=True).start()
+    
     while True:
         try: bot.infinity_polling(timeout=20, long_polling_timeout=10)
         except: time.sleep(5)
